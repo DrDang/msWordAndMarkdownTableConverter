@@ -1,0 +1,5 @@
+# Goal
+To create a quick tool that enables copy and past of MS word tables and outputs the equivalent in markdown. Likewise the tool has the capability to do the reverse. Tool should be simple and not distort tables when converting back and forth between the 2 formats. 
+
+## Example work flow
+User copies a table in MS word and pastes it into the tool. User clicks a button and the tool outputs a MD table format equivalent. User then can copy and paste that equivalent into an LLM for analysis and even allowing for the LLM to change content, for example. Then user puts in the modified MD table from the LLM back into the tool and clicks a button for it to convert back into a format user can copy and paste into MS word. User then copies the table and then pastes it back into MS word, replacing the original table that the user wanted the LLM to modify.

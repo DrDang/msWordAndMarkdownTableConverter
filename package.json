@@ -1,0 +1,21 @@
+{
+  "name": "mswordandmarkdownconverter",
+  "version": "1.0.0",
+  "description": "Bidirectional MS Word table and Markdown table converter",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jsdom": "^27.4.0",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
+  }
+}

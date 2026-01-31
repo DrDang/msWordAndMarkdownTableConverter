@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word ↔ Markdown Table Converter</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Word ↔ Markdown Table Converter</h1>
+      <p class="subtitle">Paste a Word table or enter Markdown. Convert in either direction.</p>
+
+      <div class="panels">
+        <div class="panel">
+          <div class="panel-header">
+            <label for="input">Input</label>
+            <button id="clear-input" class="btn-small" title="Clear input">Clear</button>
+          </div>
+          <textarea
+            id="input"
+            placeholder="Paste a table from Word here, or type/paste a Markdown table..."
+            spellcheck="false"
+          ></textarea>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <label for="output">Output</label>
+            <button id="copy-output" class="btn-small" title="Copy output to clipboard">Copy</button>
+          </div>
+          <textarea id="output" readonly placeholder="Converted output will appear here..." spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="to-markdown" class="btn">Word → Markdown</button>
+        <button id="to-word" class="btn btn-primary">Markdown → Word (Copy)</button>
+      </div>
+
+      <div id="toast" class="toast hidden"></div>
+      <div id="warnings" class="warnings hidden"></div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
