@@ -49,7 +49,9 @@ export function htmlTableToModel(tableEl) {
       if (cellElIdx >= cellElements.length) break;
 
       const cellEl = cellElements[cellElIdx];
-      const content = cellEl.textContent.trim();
+      // Collapse whitespace (newlines from <p> tags, tabs, etc.) into single spaces.
+      // Word cells often contain multiple <p> elements whose newlines break Markdown rows.
+      const content = cellEl.textContent.replace(/\s+/g, ' ').trim();
       const colspan = parseInt(cellEl.getAttribute('colspan') || '1', 10);
       const rowspan = parseInt(cellEl.getAttribute('rowspan') || '1', 10);
 
@@ -183,13 +185,18 @@ export function tableModelToMarkdown(table) {
  * Returns { markdown: string, warnings: string[] } or null if no table found.
  */
 export function htmlToMarkdown(htmlString) {
-  const tableEl = sanitizeWordHtml(htmlString);
-  if (!tableEl) return null;
+  const result = sanitizeWordHtml(htmlString);
+  if (!result) return null;
 
+  const { table: tableEl, tableCount } = result;
   const model = htmlTableToModel(tableEl);
   if (!model) return null;
 
   const warnings = [];
+
+  if (tableCount > 1) {
+    warnings.push(`Found ${tableCount} tables — only the first was converted.`);
+  }
 
   // Check for merged cells in the original HTML
   const cells = tableEl.querySelectorAll('td, th');

@@ -144,6 +144,52 @@ describe('htmlToMarkdown', () => {
     expect(htmlToMarkdown('<p>no table here</p>')).toBeNull();
   });
 
+  it('collapses multi-line cell content into single line', () => {
+    const html = `
+      <table>
+        <tr><th>Step</th><th>Action</th></tr>
+        <tr>
+          <td>1</td>
+          <td>
+            <p>First paragraph of content.</p>
+            <p>Second paragraph with more detail.</p>
+          </td>
+        </tr>
+      </table>
+    `;
+    const result = htmlToMarkdown(html);
+    expect(result).not.toBeNull();
+    // Each row must be a single line — no newlines within a row
+    const lines = result.markdown.split('\n');
+    for (const line of lines) {
+      expect(line).toMatch(/^\|.*\|$/);
+    }
+    expect(result.markdown).toContain('First paragraph of content. Second paragraph with more detail.');
+  });
+
+  it('preserves comment markers like [CD1] in cell content', () => {
+    const html = `
+      <table>
+        <tr><th>Step</th><th>Response</th></tr>
+        <tr><td>1</td><td>System is operational [CD1] on laptop</td></tr>
+      </table>
+    `;
+    const result = htmlToMarkdown(html);
+    expect(result.markdown).toContain('[CD1]');
+  });
+
+  it('warns when multiple tables are found', () => {
+    const html = `
+      <table><tr><td>Table 1</td></tr></table>
+      <table><tr><td>Table 2</td></tr></table>
+    `;
+    const result = htmlToMarkdown(html);
+    expect(result).not.toBeNull();
+    expect(result.markdown).toContain('Table 1');
+    expect(result.markdown).not.toContain('Table 2');
+    expect(result.warnings.some(w => w.includes('2 tables'))).toBe(true);
+  });
+
   it('handles Word-style HTML with mso styles', () => {
     const html = `
       <table class="MsoTableGrid" style="mso-yfti-tbllook:1184">

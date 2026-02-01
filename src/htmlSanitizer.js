@@ -7,8 +7,9 @@ export function sanitizeWordHtml(htmlString) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, 'text/html');
 
-  const table = doc.querySelector('table');
-  if (!table) return null;
+  const tables = doc.querySelectorAll('table');
+  if (tables.length === 0) return null;
+  const table = tables[0];
 
   // Remove Word-specific namespaced elements (o:p, w:*, v:*)
   const nsElements = table.querySelectorAll('*');
@@ -51,7 +52,7 @@ export function sanitizeWordHtml(htmlString) {
   table.removeAttribute('cellspacing');
   table.removeAttribute('cellpadding');
 
-  return table;
+  return { table, tableCount: tables.length };
 }
 
 /**
