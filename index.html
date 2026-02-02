@@ -26,10 +26,14 @@
 
         <div class="panel">
           <div class="panel-header">
-            <label for="output">Output</label>
+            <label id="output-label">Output</label>
             <button id="copy-output" class="btn-small" title="Copy output to clipboard">Copy</button>
           </div>
           <textarea id="output" readonly placeholder="Converted output will appear here..." spellcheck="false"></textarea>
+          <div id="output-preview" class="output-preview hidden">
+            <div id="output-preview-content"></div>
+            <p class="preview-hint">This table is on your clipboard. Paste into Word with Ctrl+V / Cmd+V.</p>
+          </div>
         </div>
       </div>
 

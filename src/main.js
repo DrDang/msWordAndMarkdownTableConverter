@@ -5,6 +5,9 @@ import { readFromPaste, writeHtmlToClipboard, writeTextToClipboard } from './cli
 
 const inputEl = document.getElementById('input');
 const outputEl = document.getElementById('output');
+const outputPreviewEl = document.getElementById('output-preview');
+const outputPreviewContentEl = document.getElementById('output-preview-content');
+const outputLabelEl = document.getElementById('output-label');
 const toMarkdownBtn = document.getElementById('to-markdown');
 const toWordBtn = document.getElementById('to-word');
 const copyOutputBtn = document.getElementById('copy-output');
@@ -15,6 +18,36 @@ const warningsEl = document.getElementById('warnings');
 // Store the last pasted HTML so the "Word → Markdown" button can use it
 // even though the textarea only shows plain text.
 let lastPastedHtml = null;
+
+// Store the last generated HTML for the copy button in preview mode
+let lastGeneratedHtml = null;
+
+// --- Output mode switching ---
+
+function showTextOutput(text) {
+  lastGeneratedHtml = null;
+  outputEl.value = text;
+  outputEl.classList.remove('hidden');
+  outputPreviewEl.classList.add('hidden');
+  outputLabelEl.textContent = 'Output';
+}
+
+function showPreviewOutput(html) {
+  lastGeneratedHtml = html;
+  outputEl.classList.add('hidden');
+  outputPreviewContentEl.innerHTML = html;
+  outputPreviewEl.classList.remove('hidden');
+  outputLabelEl.textContent = 'Preview';
+}
+
+function clearOutput() {
+  lastGeneratedHtml = null;
+  outputEl.value = '';
+  outputEl.classList.remove('hidden');
+  outputPreviewContentEl.innerHTML = '';
+  outputPreviewEl.classList.add('hidden');
+  outputLabelEl.textContent = 'Output';
+}
 
 // --- Toast ---
 
@@ -53,7 +86,7 @@ inputEl.addEventListener('paste', (e) => {
     const result = htmlToMarkdown(html);
     if (result) {
       inputEl.value = '[Pasted Word table]';
-      outputEl.value = result.markdown;
+      showTextOutput(result.markdown);
       showWarnings(result.warnings);
       showToast('Word table converted to Markdown');
     } else {
@@ -76,7 +109,7 @@ toMarkdownBtn.addEventListener('click', () => {
     // Use the stored HTML from the last Word paste
     const result = htmlToMarkdown(lastPastedHtml);
     if (result) {
-      outputEl.value = result.markdown;
+      showTextOutput(result.markdown);
       showWarnings(result.warnings);
       showToast('Converted to Markdown');
     } else {
@@ -95,7 +128,7 @@ toMarkdownBtn.addEventListener('click', () => {
   if (containsTable(text)) {
     const result = htmlToMarkdown(text);
     if (result) {
-      outputEl.value = result.markdown;
+      showTextOutput(result.markdown);
       showWarnings(result.warnings);
       showToast('Converted to Markdown');
       return;
@@ -123,18 +156,29 @@ toWordBtn.addEventListener('click', async () => {
   }
 
   const success = await writeHtmlToClipboard(html, text);
+  showPreviewOutput(html);
   if (success) {
-    outputEl.value = html;
     showToast('Table copied! Paste into Word with Ctrl+V.');
   } else {
-    outputEl.value = html;
-    showToast('Could not copy to clipboard. You can manually copy the HTML from the output.', 'error');
+    showToast('Could not auto-copy. Use the Copy button, then paste into Word.', 'error');
   }
 });
 
 // --- Copy output ---
 
 copyOutputBtn.addEventListener('click', async () => {
+  // If in preview mode, copy the HTML to clipboard for Word pasting
+  if (lastGeneratedHtml) {
+    const success = await writeHtmlToClipboard(lastGeneratedHtml, '');
+    if (success) {
+      showToast('Table copied! Paste into Word with Ctrl+V.');
+    } else {
+      showToast('Could not copy to clipboard', 'error');
+    }
+    return;
+  }
+
+  // Otherwise copy the text content (Markdown)
   const text = outputEl.value.trim();
   if (!text) {
     showToast('Nothing to copy.', 'error');
@@ -153,7 +197,7 @@ copyOutputBtn.addEventListener('click', async () => {
 
 clearInputBtn.addEventListener('click', () => {
   inputEl.value = '';
-  outputEl.value = '';
+  clearOutput();
   lastPastedHtml = null;
   showWarnings([]);
 });
